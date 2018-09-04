@@ -63,9 +63,8 @@ class Role extends StackPane {
         this.visibleProperty().setValue(false);
     }
 
-    void active() {
+    void activate() {
         this.visibleProperty().setValue(true);
-        System.out.println("I am active");
     }
 
 }

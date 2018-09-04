@@ -5,16 +5,22 @@ import org.smartboot.socket.StateMachineEnum;
 import org.smartboot.socket.transport.AioSession;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static monster.gameserver.Controller.*;
-
 public class ServerProcessor implements MessageProcessor<String> {
-    private AioSession<String> session;
 
-    public AioSession<String> getSession() {
-        return session;
-    }
+    private static final String TOP_LEFT = "0";
+    private static final String TOP_RIGHT = "1";
+    private static final String BOTTOM_LEFT = "2";
+    private static final String BOTTOM_RIGHT = "3";
+    private static final String MONSTER_POS = "4";
+    private static ArrayList<AioSession<String>> sessionPool = new ArrayList<>();
+    private static ArrayList<String> randomPos = new ArrayList<>(Arrays.asList(TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT));
+    private static ArrayList<String> activedPos = new ArrayList<>();
+
+    private AioSession<String> session;
 
     @Override
     public void process(AioSession<String> session, String msg) {
@@ -23,11 +29,9 @@ public class ServerProcessor implements MessageProcessor<String> {
         int split1 = msg.indexOf(":");
         String respMsg;
 
-        String sessionID = session.getSessionID();
-
         System.out.println("Get:" + msg);
 
-        if (msg.contains("HANDSHAKE")) {
+        if ("INIT HANDSHAKE".equals(msg)) {
             int initIndex = ThreadLocalRandom.current().nextInt(0, randomPos.size());
 
             String initMsg = "INIT|" + randomPos.get(initIndex);
@@ -49,9 +53,11 @@ public class ServerProcessor implements MessageProcessor<String> {
                 activedPos.forEach(pos -> reply(session, "ACTIVE|" + pos));
             }
 
-        } else if (msg.startsWith("REQUEST")) {
+        } else if (msg.contains("REQUEST")) {
             respMsg = "UPDATE" + msg.substring(split0);
             sendToAll(respMsg);
+        } else if (msg.contains("EXIT")) {
+            sendToOther("CLEAN|" + msg.substring(msg.indexOf("|")+1));
         }
     }
 
@@ -59,30 +65,31 @@ public class ServerProcessor implements MessageProcessor<String> {
     public void stateEvent(AioSession<String> session, StateMachineEnum stateMachineEnum, Throwable throwable) {
         switch (stateMachineEnum) {
             case NEW_SESSION:
-                this.session=session;
+                this.session = session;
                 sessionPool.add(session);
                 System.out.println("New Client:" + session.getSessionID());
                 System.out.println("Connected Clients:" + sessionPool.size());
                 break;
             case SESSION_CLOSED:
                 sessionPool.remove(session);
-                System.out.println(sessionPool.size());
+                System.out.println("Client Exit:" + session.getSessionID());
+                System.out.println("Connected Clients:" + sessionPool.size());
                 break;
             default:
-                System.out.println("Other state:" + stateMachineEnum);
-                System.out.println(session.getSessionID());
+                System.out.println("Other State:" + stateMachineEnum);
+                System.out.println("ClientID:"+session.getSessionID());
         }
     }
 
-    private void sendToAll(String sms) {
-        sessionPool.forEach(s -> reply(s, sms));
+    private void sendToAll(String msg) {
+        sessionPool.forEach(s -> reply(s, msg));
     }
 
-    private void sendToOther(String sms) {
+    private void sendToOther(String msg) {
         sessionPool.forEach(s -> {
             if (!session.getSessionID().equals(s.getSessionID())) {
                 try {
-                    s.write(sms);
+                    s.write(msg);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

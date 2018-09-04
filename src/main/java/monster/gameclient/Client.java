@@ -37,6 +37,9 @@ public class Client extends Application {
     public static void setPLAYERINDEX(int index) {
         PLAYERINDEX = index;
     }
+    public static int getPLAYERINDEX(){
+        return PLAYERINDEX;
+    }
 
     private void initRolePool() {
         RolePool = new ArrayList<>(4);
@@ -44,7 +47,7 @@ public class Client extends Application {
         RolePool.add(deActRole(new Role(485, 5, RoleType.DUCK)));
         RolePool.add(deActRole(new Role(5, 485, RoleType.HORSE)));
         RolePool.add(deActRole(new Role(485, 485, RoleType.PIG)));
-        RolePool.add(new Role(245, 245, RoleType.MONSTER));
+        RolePool.add(deActRole(new Role(245, 245, RoleType.MONSTER)));
     }
 
     @Override
@@ -75,6 +78,7 @@ public class Client extends Application {
                     tileGroup.getChildren().add(tile);
                 }
             }
+
             //init the roles in pool
             initRolePool();
             RolePool.forEach(p -> roleGroup.getChildren().add(p));
