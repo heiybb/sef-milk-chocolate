@@ -42,7 +42,8 @@ public class Controller {
         host.setDisable(true);
         port.setDisable(true);
 
-        processor.getSession().write("Init Handshake");
+        processor.getSession().write("WAKEUP");
+        processor.getSession().write("INIT HANDSHAKE");
     }
 
     public void exitClient() {
@@ -52,9 +53,9 @@ public class Controller {
         System.exit(0);
     }
 
-    public static void infoServer(String move) {
+    public static void infoServer(String sms) {
         try {
-            processor.getSession().write(move);
+            processor.getSession().write(sms);
         } catch (IOException e) {
             e.printStackTrace();
         }

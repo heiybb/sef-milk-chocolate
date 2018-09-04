@@ -5,40 +5,52 @@ import org.smartboot.socket.StateMachineEnum;
 import org.smartboot.socket.transport.AioSession;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static monster.gameserver.Controller.*;
+
 public class ServerProcessor implements MessageProcessor<String> {
-    private static final int MARGIN = 30;
-    private static final int TILESIZE = 60;
+    private AioSession<String> session;
 
-    private static final String TOP_LEFT = "0";
-    private static final String TOP_RIGHT = "1";
-    private static final String BOTTOM_LEFT = "2";
-    private static final String BOTTOM_RIGHT = "3";
-    private static final String MONSTER_POS = "4";
-
-    public HashMap<String, AioSession<String>> sessionHashMap = new HashMap<>();
-    private String[] randomPos = {TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT};
+    public AioSession<String> getSession() {
+        return session;
+    }
 
     @Override
     public void process(AioSession<String> session, String msg) {
 
-        int index;
         int split0 = msg.indexOf("|");
         int split1 = msg.indexOf(":");
+        String respMsg;
 
         String sessionID = session.getSessionID();
-//        String respMsg = sessionID.substring(11) + ":" + msg
 
-        System.out.println("Get : " + msg);
+        System.out.println("Get:" + msg);
 
-        String respMsg = null;
-        if (msg.contains("Init Handshake")) {
-            respMsg = "INIT|" + randomPos[ThreadLocalRandom.current().nextInt(0, 3 + 1)];
-            reply(session, respMsg);
+        if (msg.contains("HANDSHAKE")) {
+            int initIndex = ThreadLocalRandom.current().nextInt(0, randomPos.size());
+
+            String initMsg = "INIT|" + randomPos.get(initIndex);
+            reply(session, initMsg);
+
+            if (sessionPool.size() > 1) {
+                // infor other player
+                String actMsg = "ACTIVE|" + randomPos.get(initIndex);
+                sendToOther(actMsg);
+            }
+
+            // add to actived pool
+            activedPos.add(randomPos.get(initIndex));
+            // delete used pos to avoid other player get it
+            randomPos.remove(initIndex);
+
+            //check if there is already other player connect to the server
+            if (activedPos.size() != 0) {
+                activedPos.forEach(pos -> reply(session, "ACTIVE|" + pos));
+            }
+
         } else if (msg.startsWith("REQUEST")) {
-            respMsg = "UPDATE"+msg.substring(split0);
+            respMsg = "UPDATE" + msg.substring(split0);
             sendToAll(respMsg);
         }
     }
@@ -47,25 +59,41 @@ public class ServerProcessor implements MessageProcessor<String> {
     public void stateEvent(AioSession<String> session, StateMachineEnum stateMachineEnum, Throwable throwable) {
         switch (stateMachineEnum) {
             case NEW_SESSION:
-                sessionHashMap.put(session.getSessionID(), session);
-                System.out.println(sessionHashMap.size());
+                this.session=session;
+                sessionPool.add(session);
+                System.out.println("New Client:" + session.getSessionID());
+                System.out.println("Connected Clients:" + sessionPool.size());
                 break;
             case SESSION_CLOSED:
-                sessionHashMap.remove(session.getSessionID());
-                System.out.println(sessionHashMap.size());
+                sessionPool.remove(session);
+                System.out.println(sessionPool.size());
                 break;
             default:
-                System.out.println("other state:" + stateMachineEnum);
+                System.out.println("Other state:" + stateMachineEnum);
+                System.out.println(session.getSessionID());
         }
-
     }
-    private void sendToAll(String sms){
-        sessionHashMap.forEach((key, value) -> reply(value, sms));
+
+    private void sendToAll(String sms) {
+        sessionPool.forEach(s -> reply(s, sms));
+    }
+
+    private void sendToOther(String sms) {
+        sessionPool.forEach(s -> {
+            if (!session.getSessionID().equals(s.getSessionID())) {
+                try {
+                    s.write(sms);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void reply(AioSession<String> session, String msg) {
         try {
             session.write(msg);
+            System.out.println("Send:" + msg);
         } catch (IOException e) {
             e.printStackTrace();
         }

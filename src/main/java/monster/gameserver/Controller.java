@@ -5,12 +5,26 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import org.smartboot.socket.transport.AioQuickServer;
+import org.smartboot.socket.transport.AioSession;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class Controller {
     private static final String START_STATUS = "Server is running....";
     private static final String STOP_STATUS = "Server is stopping....";
+
+    private static final String TOP_LEFT = "0";
+    private static final String TOP_RIGHT = "1";
+    private static final String BOTTOM_LEFT = "2";
+    private static final String BOTTOM_RIGHT = "3";
+    private static final String MONSTER_POS = "4";
+
+    public static ArrayList<AioSession<String>> sessionPool = new ArrayList<>();
+    public static ArrayList<String> randomPos = new ArrayList<>(Arrays.asList(TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT));
+    public static ArrayList<String> activedPos = new ArrayList<>();
 
     @FXML
     private TextField serverStatus;
@@ -18,14 +32,14 @@ public class Controller {
     private Button startBT;
     private AioQuickServer<String> server = new AioQuickServer<String>("0.0.0.0",8888, new MonsterProtocol(), new ServerProcessor());
 
-    public void startServer(ActionEvent event) throws IOException {
+    public void startServer() throws IOException {
+        server.setFlowControlEnabled(false);
         server.start();
         serverStatus.setText(START_STATUS);
         startBT.setDisable(true);
-
     }
 
-    public void stopServer(ActionEvent event) {
+    public void stopServer() {
         server.shutdown();
         serverStatus.setText(STOP_STATUS);
         System.exit(0);

@@ -17,16 +17,25 @@ public class ClientProcessor implements MessageProcessor<String> {
 
     @Override
     public void process(AioSession<String> session, String msg) {
-        System.out.println("接受到服务端响应数据：" + msg);
+        System.out.println("Get:" + msg);
 
         if (msg.contains("INIT")) {
             int index = Integer.parseInt(msg.charAt(msg.indexOf("|") + 1) + "");
-            Client.setPLAYERINDEX(index);
             Client.getRole(index).active();
+            Client.setPLAYERINDEX(index);
         } else if (msg.contains("UPDATE")) {
             int index = Integer.parseInt(msg.charAt(msg.indexOf("|") + 1) + "");
             String dir = msg.substring(msg.indexOf(":") + 1);
             Client.getRole(index).move(dir);
+        }else if(msg.contains("ACTIVE")){
+            int index = Integer.parseInt(msg.charAt(msg.indexOf("|") + 1) + "");
+            Client.getRole(index).active();
+        }else{
+            try {
+                session.write("KeepAlive");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

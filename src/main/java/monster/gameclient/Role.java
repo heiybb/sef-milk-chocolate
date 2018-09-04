@@ -4,8 +4,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 
-import java.io.IOException;
-
 
 class Role extends StackPane {
 
@@ -14,10 +12,30 @@ class Role extends StackPane {
     static final String LEFT = "LEFT";
     static final String RIGHT = "RIGHT";
 
-    Role(int x, int y) {
+    Role(int x, int y, RoleType index) {
 
         relocate(x, y);
-        ImageView mon = new ImageView(new Image("monster.png", 50, 50, false, false));
+
+        ImageView mon=null;
+        switch (index) {
+            case CHICKEN:
+                mon = new ImageView(new Image("CHICKEN.png", 50, 50, false, false));
+                break;
+            case DUCK:
+                mon = new ImageView(new Image("DUCK.png", 50, 50, false, false));
+                break;
+            case HORSE:
+                mon = new ImageView(new Image("HORSE.png", 50, 50, false, false));
+                break;
+            case PIG:
+                mon = new ImageView(new Image("PIG.png", 50, 50, false, false));
+                break;
+            case MONSTER:
+                mon = new ImageView(new Image("MONSTER.png", 50, 50, false, false));
+                break;
+            default:
+                break;
+        }
         getChildren().addAll(mon);
 
     }
@@ -41,12 +59,13 @@ class Role extends StackPane {
         }
     }
 
-    void deactivate(){
+    void deactivate() {
         this.visibleProperty().setValue(false);
     }
 
-    void active(){
+    void active() {
         this.visibleProperty().setValue(true);
+        System.out.println("I am active");
     }
 
 }
