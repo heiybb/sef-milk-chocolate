@@ -16,10 +16,6 @@ public class Controller {
     private static final String START_STATUS = "Server is running....";
     private static final String STOP_STATUS = "Server is stopping....";
 
-
-
-
-
     @FXML
     private TextField serverStatus;
     @FXML

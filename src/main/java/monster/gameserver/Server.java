@@ -6,7 +6,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.util.Objects;
 
@@ -19,7 +18,7 @@ public class Server extends Application {
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load((Objects.requireNonNull(getClass().getClassLoader().getResource("GameServer.fxml"))));
         primaryStage.setTitle("Game Server Panel");
-        primaryStage.getIcons().add(new Image("icon.png"));
+        primaryStage.getIcons().add(new Image("Icon.png"));
         primaryStage.setScene(new Scene(root));
         primaryStage.setResizable(false);
         primaryStage.show();

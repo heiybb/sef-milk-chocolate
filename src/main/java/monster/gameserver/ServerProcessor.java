@@ -16,6 +16,7 @@ public class ServerProcessor implements MessageProcessor<String> {
     private static final String BOTTOM_LEFT = "2";
     private static final String BOTTOM_RIGHT = "3";
     private static final String MONSTER_POS = "4";
+
     private static ArrayList<AioSession<String>> sessionPool = new ArrayList<>();
     private static ArrayList<String> randomPos = new ArrayList<>(Arrays.asList(TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT));
     private static ArrayList<String> activedPos = new ArrayList<>();

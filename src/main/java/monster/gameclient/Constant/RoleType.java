@@ -1,4 +1,4 @@
-package monster.gameclient;
+package monster.gameclient.Constant;
 
 /**
  * @author hfhei

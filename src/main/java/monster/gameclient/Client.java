@@ -3,11 +3,15 @@ package monster.gameclient;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
+import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
+import javafx.scene.effect.BoxBlur;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import monster.gameclient.Constant.RoleType;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,43 +23,58 @@ import java.util.Objects;
 public class Client extends Application {
     private static final int ROW_NUM = 9;
     private static final int COL_NUM = 9;
-    private static Group tileGroup = new Group();
+
+    static final String UP = "UP";
+    static final String DOWN = "DOWN";
+    static final String LEFT = "LEFT";
+    static final String RIGHT = "RIGHT";
+
+    private static Pane boardContainer;
+
     private static ArrayList<Role> RolePool;
-    private static int PLAYERINDEX;
+    private static int PlayerIndex;
     private Stage primaryStage;
-    private Pane rootLayout;
+    private StackPane rootLayout;
+    private Group tileGroup = new Group();
     private Group roleGroup = new Group();
 
     public static void main(String[] args) {
         launch(args);
     }
 
-    public static Role getRole(int index) {
+    public static Role getRoleByIndex(int index) {
         return RolePool.get(index);
     }
 
-    public static void setPLAYERINDEX(int index) {
-        PLAYERINDEX = index;
+    public static int getPlayerIndex() {
+        return PlayerIndex;
     }
-    public static int getPLAYERINDEX(){
-        return PLAYERINDEX;
+
+    public static void setPlayerIndex(int index) {
+        PlayerIndex = index;
+    }
+
+    public static void delEffect() {
+        boardContainer.setEffect(null);
     }
 
     private void initRolePool() {
         RolePool = new ArrayList<>(4);
-        RolePool.add(deActRole(new Role(5, 5, RoleType.CHICKEN)));
-        RolePool.add(deActRole(new Role(485, 5, RoleType.DUCK)));
-        RolePool.add(deActRole(new Role(5, 485, RoleType.HORSE)));
-        RolePool.add(deActRole(new Role(485, 485, RoleType.PIG)));
-        RolePool.add(deActRole(new Role(245, 245, RoleType.MONSTER)));
+        RolePool.add(new Role(0, 0, RoleType.CHICKEN));
+        RolePool.add(new Role(8, 0, RoleType.DUCK));
+        RolePool.add(new Role(0, 8, RoleType.HORSE));
+        RolePool.add(new Role(8, 8, RoleType.PIG));
+        RolePool.add(new Role(4, 4, RoleType.MONSTER));
+        RolePool.forEach(Role::deactivate);
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
-        this.primaryStage.setTitle("Game Panel");
-        this.primaryStage.getIcons().add(new Image("icon.png"));
-        this.primaryStage.setResizable(false);
+
+        primaryStage.setTitle("Game Panel");
+        primaryStage.getIcons().add(new Image("Icon.png"));
+        primaryStage.setResizable(false);
         initRootLayout();
     }
 
@@ -63,12 +82,14 @@ public class Client extends Application {
         try {
             rootLayout = FXMLLoader.load((Objects.requireNonNull(getClass().getClassLoader().getResource("GameClient.fxml"))));
 
-            Pane boardContainer = new Pane();
+            boardContainer = new Pane();
             boardContainer.relocate(30, 30);
-            boardContainer.setPrefHeight(540);
-            boardContainer.setPrefWidth(540);
+            boardContainer.setStyle("-fx-pref-height: 540;-fx-pref-width: 540");
+            boardContainer.setEffect(new BoxBlur());
 
-            rootLayout.getChildren().addAll(boardContainer);
+            Pane root = (Pane) rootLayout.lookup("#rootPane");
+            root.getChildren().add(boardContainer);
+
             boardContainer.getChildren().addAll(tileGroup, roleGroup);
 
             for (int y = 0; y < COL_NUM; y++) {
@@ -86,15 +107,16 @@ public class Client extends Application {
             Scene scene = new Scene(rootLayout);
             primaryStage.setScene(scene);
             scene.getRoot().requestFocus();
+            scene.setCursor(new ImageCursor(new Image("Cursor.png"), 25, 25));
             scene.setOnKeyPressed((event -> {
                 if (event.getCode() == KeyCode.UP) {
-                    Controller.infoServer("REQUEST" + "|" + PLAYERINDEX + ":" + Role.UP);
+                    Controller.infoServer("REQUEST" + "|" + PlayerIndex + ":" + UP);
                 } else if (event.getCode() == KeyCode.DOWN) {
-                    Controller.infoServer("REQUEST" + "|" + PLAYERINDEX + ":" + Role.DOWN);
+                    Controller.infoServer("REQUEST" + "|" + PlayerIndex + ":" + DOWN);
                 } else if (event.getCode() == KeyCode.LEFT) {
-                    Controller.infoServer("REQUEST" + "|" + PLAYERINDEX + ":" + Role.LEFT);
+                    Controller.infoServer("REQUEST" + "|" + PlayerIndex + ":" + LEFT);
                 } else if (event.getCode() == KeyCode.RIGHT) {
-                    Controller.infoServer("REQUEST" + "|" + PLAYERINDEX + ":" + Role.RIGHT);
+                    Controller.infoServer("REQUEST" + "|" + PlayerIndex + ":" + RIGHT);
                 }
             }));
 
@@ -102,10 +124,5 @@ public class Client extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private Role deActRole(Role p) {
-        p.deactivate();
-        return p;
     }
 }

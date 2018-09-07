@@ -3,20 +3,16 @@ package monster.gameclient;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import monster.gameclient.Constant.RoleType;
 
+import static monster.gameclient.Client.*;
 
 class Role extends StackPane {
 
-    static final String UP = "UP";
-    static final String DOWN = "DOWN";
-    static final String LEFT = "LEFT";
-    static final String RIGHT = "RIGHT";
-
     Role(int x, int y, RoleType index) {
+        relocate(x * 60 + 5, y * 60 + 5);
 
-        relocate(x, y);
-
-        ImageView mon=null;
+        ImageView mon = null;
         switch (index) {
             case CHICKEN:
                 mon = new ImageView(new Image("CHICKEN.png", 50, 50, false, false));
@@ -36,8 +32,7 @@ class Role extends StackPane {
             default:
                 break;
         }
-        getChildren().addAll(mon);
-
+        this.getChildren().add(mon);
     }
 
     void move(String dir) {
@@ -66,5 +61,4 @@ class Role extends StackPane {
     void activate() {
         this.visibleProperty().setValue(true);
     }
-
 }
