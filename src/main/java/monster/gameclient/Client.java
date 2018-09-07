@@ -107,7 +107,7 @@ public class Client extends Application {
             Scene scene = new Scene(rootLayout);
             primaryStage.setScene(scene);
             scene.getRoot().requestFocus();
-            scene.setCursor(new ImageCursor(new Image("Cursor.png"), 25, 25));
+            //scene.setCursor(new ImageCursor(new Image("Cursor.png"), 25, 25))
             scene.setOnKeyPressed((event -> {
                 if (event.getCode() == KeyCode.UP) {
                     Controller.infoServer("REQUEST" + "|" + PlayerIndex + ":" + UP);

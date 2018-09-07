@@ -79,6 +79,7 @@ public class ServerProcessor implements MessageProcessor<String> {
             default:
                 System.out.println("Other State:" + stateMachineEnum);
                 System.out.println("ClientID:"+session.getSessionID());
+                break;
         }
     }
 

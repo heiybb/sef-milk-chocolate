@@ -55,6 +55,7 @@ public class ClientProcessor implements MessageProcessor<String> {
                 break;
             default:
                 System.out.println("Other state:" + stateMachineEnum);
+                break;
         }
     }
 
