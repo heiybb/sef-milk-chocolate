@@ -40,5 +40,3 @@ gradle-app.setting
 hs_err_pid*
 
 .idea
-#fix gradle jar missing
-!gradle/wrapper/* 
