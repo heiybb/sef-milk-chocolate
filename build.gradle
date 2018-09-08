@@ -21,3 +21,8 @@ dependencies {
     //JavaFX Material Design Library
     compile 'com.jfoenix:jfoenix:8.0.7' // Java 8
 }
+
+buildScan {
+   licenseAgreementUrl = 'https://gradle.com/terms-of-service'
+   licenseAgree = 'yes'
+}
