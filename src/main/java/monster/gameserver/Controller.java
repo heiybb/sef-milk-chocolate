@@ -6,6 +6,10 @@ import javafx.scene.control.TextField;
 import org.smartboot.socket.transport.AioQuickServer;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
+
+import static monster.gameserver.ServerProcessor.sendToAll;
 
 public class Controller {
 
@@ -19,7 +23,7 @@ public class Controller {
     private AioQuickServer<String> server = new AioQuickServer<String>("0.0.0.0", 8888, new MonsterProtocol(), new ServerProcessor());
 
     public void startServer() throws IOException {
-        server.setFlowControlEnabled(false);
+        server.setThreadNum(4);
         server.start();
         initBoard();
         serverStatus.setText(START_STATUS);

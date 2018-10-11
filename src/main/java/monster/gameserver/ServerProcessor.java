@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 import static monster.gameserver.Controller.setBoard;
 
@@ -101,11 +102,12 @@ public class ServerProcessor implements MessageProcessor<String> {
             default:
                 System.out.println("Other State:" + stateMachineEnum);
                 System.out.println("ClientID:" + session.getSessionID());
+
                 break;
         }
     }
 
-    private void sendToAll(String msg) {
+    public static void sendToAll(String msg) {
         sessionPool.forEach(s -> reply(s, msg));
     }
 
@@ -121,7 +123,7 @@ public class ServerProcessor implements MessageProcessor<String> {
         });
     }
 
-    private void reply(AioSession<String> session, String msg) {
+    private static void reply(AioSession<String> session, String msg) {
         try {
             session.write(msg);
             System.out.println("Send:" + msg);

@@ -9,7 +9,7 @@ public class MonsterProtocol implements Protocol<String> {
     private static final int INT_LENGTH = 4;
 
     @Override
-    public String decode(ByteBuffer readBuffer, AioSession<String> session, boolean eof) {
+    public String decode(ByteBuffer readBuffer, AioSession<String> session) {
         if (readBuffer.remaining() < INT_LENGTH) {
             return null;
         }

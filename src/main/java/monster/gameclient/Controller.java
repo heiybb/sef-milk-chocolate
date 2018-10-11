@@ -1,9 +1,5 @@
 package monster.gameclient;
 
-
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
-import com.jfoenix.controls.JFXDialogLayout;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
@@ -60,7 +56,7 @@ public class Controller {
             infoServer("INIT HANDSHAKE");
             delEffect();
         }else{
-            showInfoDialog();
+//            showInfoDialog();
         }
     }
 
@@ -76,28 +72,4 @@ public class Controller {
         processor = null;
     }
 
-
-    public void showInfoDialog(){
-        JFXDialogLayout content = new JFXDialogLayout();
-
-        Text dialogHeading = new Text("Server Error");
-        dialogHeading.setStyle("-fx-font-size: 20.0;-fx-font-weight: bold;");
-
-        Text dialogBody = new Text("Server is not working...");
-        dialogBody.setStyle("-fx-font-size: 18;");
-
-        content.setHeading(dialogHeading);
-        content.setBody(dialogBody);
-        JFXDialog dialog = new JFXDialog(stack, content, JFXDialog.DialogTransition.CENTER);
-        JFXButton button = new JFXButton("OK");
-        button.setStyle("-fx-background-color: #03DAC6;-fx-border-radius: 30;");
-        button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                dialog.close();
-            }
-        });
-        content.setActions(button);
-        dialog.show();
-    }
 }
