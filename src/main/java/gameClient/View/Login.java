@@ -11,10 +11,6 @@ import javafx.scene.text.Text;
 
 
 
-/**
- * @author Hubert Law
- * handle the login process
- */
 public class Login {
 
 	private static Group loginInterface = new Group();

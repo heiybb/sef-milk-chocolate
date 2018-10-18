@@ -18,11 +18,13 @@ public class Player {
     private String roleName;
     private String oldleX;
     private String oldleY;
+    private Position pos;
 
     public Player(String name, String oldx, String oldy) {
         roleName = name;
         oldleX = oldx;
         oldleY = oldy;
+        pos = new Position(Integer.valueOf(oldx), Integer.valueOf(oldy));
     }
 
     public static String[] randomPosForPlayer() {
@@ -59,33 +61,36 @@ public class Player {
 
     }
 
-    
-    
+
     public String getRoleName() {
-		return roleName;
-	}
+        return roleName;
+    }
 
-	public String getOldleX() {
-		return oldleX;
-	}
+    public String getOldleX() {
+        return oldleX;
+    }
 
-	public void setOldleX(String oldleX) {
-		this.oldleX = oldleX;
-	}
+    public void setOldleX(String oldleX) {
+        this.oldleX = oldleX;
+    }
 
-	public String getOldleY() {
-		return oldleY;
-	}
+    public String getOldleY() {
+        return oldleY;
+    }
 
-	public void setOldleY(String oldleY) {
-		this.oldleY = oldleY;
-	}
+    public void setOldleY(String oldleY) {
+        this.oldleY = oldleY;
+    }
 
-	public String getXY() {
+    public String getXY() {
         return oldleX + "-" + oldleY;
     }
 
     public String getPosition() {
         return roleName + "-" + oldleX + "-" + oldleY;
+    }
+
+    public Position getPos() {
+        return pos;
     }
 }

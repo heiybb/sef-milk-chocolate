@@ -1,6 +1,5 @@
 package gameClient.Model;
 
-import gameClient.Client;
 import gameClient.View.GameInterface;
 
 import java.util.ArrayList;

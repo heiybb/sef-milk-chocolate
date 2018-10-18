@@ -49,4 +49,5 @@ public class Client extends Application {
             e.printStackTrace();
         }
     }
+
 }

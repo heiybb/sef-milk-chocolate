@@ -146,25 +146,36 @@ public class ServerProcessor implements MessageProcessor<String> {
     private void startHunt() {
 
         HUNTER = new Timeline(new KeyFrame(Duration.seconds(0.6), event -> {
-
-
             int monsterX = gameServer.Model.Monster.getPositionX();
             int monsterY = gameServer.Model.Monster.getPositionY();
-
-            int[] temp = NearestNodeSearch.findNearPos(roles, monsterX, monsterY);
+            NearestNodeSearch search = new NearestNodeSearch();
+            int[] temp = search.findNearPos(roles, monsterX, monsterY);
 
             try {
-                MonsterTryMove(temp);
+                monsterTryMove(temp);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }));
         HUNTER.setCycleCount(Animation.INDEFINITE);
         HUNTER.play();
+
+//        new Thread(()->{
+//            int monsterX = gameServer.Model.Monster.getPositionX();
+//            int monsterY = gameServer.Model.Monster.getPositionY();
+//
+//            int[] temp = NearestNodeSearch.findNearPos(roles, monsterX, monsterY);
+//
+//            try {
+//                monsterTryMove(temp);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }).start();
     }
 
 
-    private void MonsterTryMove(int[] monsterPos) throws InterruptedException {
+    private void monsterTryMove(int[] monsterPos) throws InterruptedException {
         if (roles.size() == 1) {
             HUNTER.stop();
         } else {
@@ -280,20 +291,16 @@ public class ServerProcessor implements MessageProcessor<String> {
         String moveTo = temp[1];
 
         if ("UP".equals(moveTo)) {
-            tryMoveX = 0;
             tryMoveY = -1;
         }
         if ("DOWN".equals(moveTo)) {
-            tryMoveX = 0;
             tryMoveY = 1;
         }
         if ("LEFT".equals(moveTo)) {
             tryMoveX = -1;
-            tryMoveY = 0;
         }
         if ("RIGHT".equals(moveTo)) {
             tryMoveX = 1;
-            tryMoveY = 0;
         }
 
         String[] older = olderPos.split("-");

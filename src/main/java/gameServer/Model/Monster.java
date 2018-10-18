@@ -1,5 +1,6 @@
 package gameServer.Model;
 
+
 public class Monster {
 	
 	private static int positionX;

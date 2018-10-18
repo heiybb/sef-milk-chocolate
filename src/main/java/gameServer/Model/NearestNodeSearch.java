@@ -2,10 +2,9 @@ package gameServer.Model;
 
 import org.smartboot.socket.transport.AioSession;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Bobin Yuan s3677943
@@ -26,78 +25,7 @@ public class NearestNodeSearch {
             {6, 1}, {6, 2}, {6, 3}, {6, 5}, {6, 6}, {6, 7},
             {7, 1}, {7, 2}, {7, 3}, {7, 5}, {7, 6}, {7, 7}};
 
-    /**
-     * @param roles    roles contain all the players position
-     * @param monsterX the monster X pos in the game board
-     * @param monsterY the monster Y pos in the game board
-     * @return 2 array include X and Y for monster move
-     */
-    public static int[] findNearPos(HashMap<AioSession<String>, Player> roles, int monsterX, int monsterY) {
-
-        Node monsterPos = new Node(monsterX, monsterY);
-
-        HashMap<Integer, List<Node>> allPossible = new HashMap<>();
-
-        ArrayList<Node> playerNodes = new ArrayList<>();
-
-        roles.forEach((session, player) -> {
-            int targetPlayerPosX = Integer.valueOf(player.getPosition().split("-")[1]);
-            int targetPlayerPosY = Integer.valueOf(player.getPosition().split("-")[2]);
-            playerNodes.add(new Node(targetPlayerPosX, targetPlayerPosY));
-        });
-
-        ArrayList<List<Node>> pathList = new ArrayList<>();
-        playerNodes.forEach(node -> {
-            AStar map = new AStar(ROW, COL, monsterPos, node);
-            //set wall area
-            map.setBlocks(WALL_AREA);
-            List<Node> otherPlayerNode = new ArrayList<>(playerNodes);
-            otherPlayerNode.remove(node);
-            //set other player pos as block
-            otherPlayerNode.forEach(other -> {
-                map.setBlock(other.getRow(), other.getCol());
-            });
-            if (map.findPath().size() != 0) {
-                pathList.add(map.findPath());
-            }
-        });
-
-        System.out.println(pathList.size());
-
-
-        pathList.forEach(path -> {
-            //if the size is the same then will overwrite the last same one in order to minimize the paths
-            if (path.size() != 0) {
-                //try to fix path 0 bug
-                allPossible.put(path.size(), path);
-            }
-        });
-
-        TreeMap<Integer, List<Node>> sortPath = new TreeMap<>(allPossible);
-
-//        List<Node> shortestPath = sortPath.firstEntry().getValue();
-
-        List<Node> shortestPath = getShortest(pathList);
-
-        System.out.println(shortestPath.size());
-
-
-        //the nearest Node that the monster can move to
-        Node nearestNode = shortestPath.get(1);
-        int[] nearest = new int[2];
-        nearest[0] = nearestNode.getRow();
-        nearest[1] = nearestNode.getCol();
-        roles.forEach((session, player) -> {
-            System.out.println(player.getXY());
-        });
-        System.out.println("Target Pos:" + shortestPath.get(shortestPath.size() - 1));
-        System.out.println("Monster Current Position: " + monsterX + "," + monsterY);
-        System.out.println("Monster is moving to:" + nearest[0] + "," + nearest[1]);
-        return nearest;
-
-    }
-
-    private static List<Node> getShortest(ArrayList<List<Node>> pathList) {
+    private static List<Node> getShortest(HashMap<Integer, List<Node>> pathList) {
         int pathSize = 90;
         int index = 0;
         for (int i = 0; i < pathList.size() - 1; i++) {
@@ -107,5 +35,95 @@ public class NearestNodeSearch {
             }
         }
         return pathList.get(index);
+    }
+
+    // Function to merge multiple arrays in Java 8
+    private static int[][] merge(int[][]... arrays) {
+        return Stream.of(arrays)
+                // or use Arrays::stream
+                .flatMap(Stream::of)
+                .toArray(int[][]::new);
+
+    }
+
+    private static int[][] mergeNode(ArrayList<Node> other) {
+        int[][] all = WALL_AREA;
+        for (Node a : other) {
+            all = merge(all, new int[][]{{a.getCol(), a.getRow()}});
+        }
+        return all;
+    }
+
+    /**
+     * @param hashMap HashMap type require
+     * @param <K>     any key
+     * @param <V>     any value
+     * @return TreeMap that sorted
+     */
+    //construct a new TreeMap from HashMap
+    private static <K, V> Map<K, V> getTreeMap(Map<K, V> hashMap) {
+        Map<K, V> treeMap = hashMap.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldValue, newValue) -> newValue,
+                        TreeMap::new));
+
+        return treeMap;
+    }
+
+    /**
+     * @param roles    roles contain all the players position
+     * @param monsterX the monster X pos in the game board
+     * @param monsterY the monster Y pos in the game board
+     * @return 2 array include X and Y for monster move
+     */
+    public int[] findNearPos(HashMap<AioSession<String>, Player> roles, int monsterX, int monsterY) {
+
+        Node monsterPos = new Node(monsterX, monsterY);
+
+        ArrayList<Node> playerNodes = new ArrayList<>();
+
+        ArrayList<List<Node>> outpath = new ArrayList<>();
+
+
+        HashMap<Integer, List<Node>> testHashMap = new HashMap<>();
+
+        roles.forEach((session, player) -> {
+//            int targetPlayerPosX = Integer.valueOf(player.getPosition().split("-")[1]);
+//            int targetPlayerPosY = Integer.valueOf(player.getPosition().split("-")[2]);
+            int targetPlayerPosX = player.getPos().getPositionX();
+            int targetPlayerPosY = player.getPos().getPositionY();
+            playerNodes.add(new Node(targetPlayerPosX, targetPlayerPosY));
+        });
+
+        playerNodes.forEach(node -> {
+            ArrayList<Node> otherPlayerNode = new ArrayList<>(playerNodes);
+            otherPlayerNode.remove(node);
+
+            AStar map = new AStar(ROW, COL, monsterPos, node);
+            map.setBlocks(WALL_AREA);
+            //bug point
+            otherPlayerNode.forEach(o -> {
+                map.setBlock(o.getCol(), o.getRow());
+            });
+            List<Node> out = map.findPath();
+
+            outpath.add(0, out);
+            testHashMap.put(out.size(), out);
+        });
+
+        TreeMap<Integer, List<Node>> allPathTree = new TreeMap<>(testHashMap);
+
+        Node nearestNode = allPathTree.firstEntry().getValue().get(1);
+        int[] nearest = new int[]{nearestNode.getRow(), nearestNode.getCol()};
+
+        roles.forEach((session, player) -> {
+            System.out.println("Player Position:" + player.getXY());
+        });
+        System.out.println("Monster Current Position: " + monsterX + "," + monsterY);
+        System.out.println("Monster Next Position:" + nearest[0] + "," + nearest[1]);
+        return nearest;
+
     }
 }

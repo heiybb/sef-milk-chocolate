@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutionException;
 
 public class Controller {
     private static ClientProcessor processor = new ClientProcessor();
-    private AioQuickClient<String> client = new AioQuickClient<>("localhost", 8080, new MonsterProtocol(), processor);
+    private AioQuickClient<String> client = new AioQuickClient<>("127.0.0.1", 8080, new MonsterProtocol(), processor);
 //    private AioQuickClient<String> client = new AioQuickClient<>("10.132.42.208", 8080, new MonsterProtocol(), processor);
 
     

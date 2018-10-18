@@ -11,10 +11,6 @@ import javafx.stage.Stage;
 
 import static gameClient.View.GameInterface.OWNER_START;
 
-/**
- * @author XiaoYu Chen, Bobin Yuan, Hubert Law
- * handle the event in the game interface
- */
 public class EventHandle extends ActionEvent {
     public static String uString;
 
@@ -129,10 +125,14 @@ public class EventHandle extends ActionEvent {
     public static void startBtn(Controller controller, Stage primaryStage, Scene scene) {
         GameInterface.getOWNER_START().setOnMouseClicked(event -> {
 
-            if (Message.playersNumber >= 2 && controller.infoServer("StartGame|")) {
-                OWNER_START.setDisable(true);
+            if (Message.playersNumber >= 2) {
+                if (controller.infoServer("StartGame|")) {
+                    OWNER_START.setDisable(true);
+                } else {
+                    GameInterface.getInfo().setText("Sorry, not enough players");
+                }
             } else {
-                GameInterface.getInfo().setText("Not enough players");
+                GameInterface.getInfo().setText("not enough players");
             }
         });
 

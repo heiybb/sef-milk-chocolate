@@ -20,6 +20,7 @@ import java.io.IOException;
  * include init the server connection
  * server Start and Quit button
  */
+
 public class Server extends Application {
     private AioQuickServer<String> server = new AioQuickServer<String>("0.0.0.0", 8080, new MonsterProtocol(), new ServerProcessor());
     public static void main(String[] args) {
@@ -30,6 +31,7 @@ public class Server extends Application {
     private void startServer() {
         try {
             server.start();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
